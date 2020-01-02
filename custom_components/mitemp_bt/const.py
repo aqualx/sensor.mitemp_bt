@@ -7,7 +7,7 @@ CONF_PERIOD = "period"
 CONF_LOG_SPIKES = "log_spikes"
 CONF_USE_MEDIAN = "use_median"
 CONF_HCITOOL_ACTIVE = "hcitool_active"
-conf_IFACE = "iface"
+CONF_IFACE = "iface"
 
 # Default values for configuration options
 DEFAULT_ROUNDING = True
