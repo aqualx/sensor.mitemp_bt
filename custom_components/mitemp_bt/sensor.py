@@ -28,12 +28,14 @@ from .const import (
     DEFAULT_LOG_SPIKES,
     DEFAULT_USE_MEDIAN,
     DEFAULT_HCITOOL_ACTIVE,
+    DEFAULT_IFACE,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
     CONF_HCITOOL_ACTIVE,
+    CONF_IFACE,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -53,6 +55,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(
             CONF_HCITOOL_ACTIVE, default=DEFAULT_HCITOOL_ACTIVE
         ): cv.boolean,
+        vol.Optional(CONF_IFACE, default=DEFAULT_IFACE): cv.positive_int,
     }
 )
 
@@ -213,15 +216,22 @@ class BLEScanner:
     def start(self, config):
         """Start receiving broadcasts."""
         hcitool_active = config[CONF_HCITOOL_ACTIVE]
+        iface = config[CONF_IFACE]
         _LOGGER.debug("Start receiving broadcasts")
         hcitoolcmd = ["hcitool", "lescan", "--duplicates", "--passive"]
         if hcitool_active:
             hcitoolcmd = ["hcitool", "lescan", "--duplicates"]
+        if iface != 0:
+            hcitoolcmd.append("-i hci" + iface)
         self.hcitool = subprocess.Popen(
             hcitoolcmd, stdout=self.devnull, stderr=self.devnull
         )
+        hcidumpcmd = ["hcidump", "--raw"]
+        if iface != 0:
+            hcidumpcmd.append("-i hci" + iface)
+        hcidumpcmd.append("hci")
         self.hcidump = subprocess.Popen(
-            ["hcidump", "--raw", "hci"], stdout=self.tempf, stderr=self.devnull
+            hcidumpcmd, stdout=self.tempf, stderr=self.devnull
         )
 
     def stop(self):
